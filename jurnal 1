@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f6fb">
+<title>Ruang — Jurnal & Jadwal</title>
+<style>
+:root{--bg:#f5f6fb;--card:#fff;--ink:#202235;--muted:#85899c;--accent:#6257d9;--soft:#eeecff;--line:#ececf2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+.app{max-width:620px;margin:auto;min-height:100vh;padding:24px 18px 100px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.5px}.brand span{color:var(--accent)}
+.date{font-size:12px;color:var(--muted);margin-top:3px}
+.avatar{width:40px;height:40px;border-radius:14px;background:var(--soft);display:grid;place-items:center;color:var(--accent);font-weight:800}
+h1{font-size:27px;line-height:1.15;letter-spacing:-1px;margin:0 0 7px}
+.sub{color:var(--muted);margin:0 0 22px}
+.tabs{display:flex;gap:8px;background:#eaeaf2;padding:5px;border-radius:15px;margin-bottom:22px}
+.tab{flex:1;border:0;padding:10px 8px;border-radius:11px;background:transparent;color:var(--muted);font-weight:700}
+.tab.active{background:#fff;color:var(--accent);box-shadow:0 2px 8px #24244a12}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:0 5px 18px #25254a08}
+.cardhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.card h2{font-size:16px;margin:0}.hint{font-size:12px;color:var(--muted)}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafaff;color:var(--ink);font:inherit;outline:none}
+textarea{min-height:120px;resize:vertical}
+input:focus,textarea:focus{border-color:#a8a1ff}
+button.primary{border:0;border-radius:12px;background:var(--accent);color:white;padding:12px 16px;font-weight:750;width:100%;margin-top:10px}
+button.small{border:0;border-radius:10px;background:var(--soft);color:var(--accent);padding:8px 11px;font-weight:700}
+.field{margin:10px 0}.field label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+.entry{padding:13px 0;border-top:1px solid var(--line)}.entry:first-child{border-top:0;padding-top:0}
+.entrytitle{font-weight:750}.entrymeta{font-size:12px;color:var(--muted);margin:3px 0 7px}.entrybody{white-space:pre-wrap;color:#55596c}
+.entryrow{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.del{border:0;background:transparent;color:#a1a3b0;padding:3px 6px}
+.schedule{display:flex;gap:13px;padding:12px 0;border-top:1px solid var(--line)}.schedule:first-child{border-top:0;padding-top:0}
+.time{min-width:62px;color:var(--accent);font-weight:800;font-size:13px}
+.empty{text-align:center;color:var(--muted);padding:22px 8px;font-size:13px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:12px max(18px,calc((100% - 584px)/2));display:flex;justify-content:space-around}
+.bottom span{font-size:11px;color:var(--muted);text-align:center}.bottom b{display:block;font-size:18px;color:var(--accent)}
+.hidden{display:none!important}
+.note{font-size:12px;color:var(--muted);text-align:center;margin:20px 5px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div><div class="brand">ruang<span>.</span></div><div class="date" id="today"></div></div><div class="avatar">R</div></header>
+<h1>Pelan-pelan,<br>tetap bertumbuh.</h1>
+<p class="sub">Satu tempat untuk merapikan hari dan menyimpan pikiran.</p>
+<nav class="tabs">
+<button class="tab active" data-tab="home">Beranda</button>
+<button class="tab" data-tab="journal">Jurnal</button>
+<button class="tab" data-tab="schedule">Jadwal</button>
+</nav>
+
+<section id="home">
+<div class="card"><div class="cardhead"><h2>Hari ini</h2><span class="hint" id="todayLong"></span></div><div id="homeSchedule"></div></div>
+<div class="card"><div class="cardhead"><h2>Catatan terbaru</h2><button class="small" onclick="showTab('journal')">Buka jurnal</button></div><div id="homeJournal"></div></div>
+</section>
+
+<section id="journal" class="hidden">
+<div class="card">
+<div class="cardhead"><h2>Tulis jurnal</h2><span class="hint">Simpan untuk dirimu</span></div>
+<div class="field"><label>Judul</label><input id="jTitle" placeholder="Hari yang ingin kuingat..."></div>
+<div class="field"><label>Cerita hari ini</label><textarea id="jBody" placeholder="Apa yang sedang kamu pikirkan?"></textarea></div>
+<button class="primary" onclick="addJournal()">Simpan catatan</button>
+</div>
+<div class="card"><div class="cardhead"><h2>Arsip jurnal</h2><span class="hint" id="journalCount"></span></div><div id="journalList"></div></div>
+</section>
+
+<section id="schedule" class="hidden">
+<div class="card">
+<div class="cardhead"><h2>Tambah kegiatan</h2><span class="hint">Atur waktumu</span></div>
+<div class="field"><label>Nama kegiatan</label><input id="sTitle" placeholder="Misalnya: belajar SNBT"></div>
+<div class="field"><label>Tanggal</label><input id="sDate" type="date"></div>
+<div class="field"><label>Waktu</label><input id="sTime" type="time"></div>
+<button class="primary" onclick="addSchedule()">Tambah jadwal</button>
+</div>
+<div class="card"><div class="cardhead"><h2>Daftar kegiatan</h2><span class="hint">Urut berdasarkan waktu</span></div><div id="scheduleList"></div></div>
+</section>
+<p class="note">Versi awal Ruang · Catatan disimpan di browser perangkat ini.</p>
+</div>
+<div class="bottom"><span><b>⌂</b>Beranda</span><span><b>▤</b>Jurnal</span><span><b>▦</b>Jadwal</span></div>
+<script>
+const $=id=>document.getElementById(id);
+const read=(key)=>{try{return JSON.parse(localStorage.getItem(key)||"[]")}catch{return []}};
+const write=(key,val)=>localStorage.setItem(key,JSON.stringify(val));
+const dateNow=new Date();
+$("today").textContent=dateNow.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+$("todayLong").textContent=dateNow.toLocaleDateString("id-ID",{day:"numeric",month:"short"});
+$("sDate").value=dateNow.toISOString().slice(0,10);
+function showTab(name){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));$(name).classList.remove("hidden");document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));render()}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
+function addJournal(){let title=$("jTitle").value.trim(),body=$("jBody").value.trim();if(!title&&!body){alert("Tulis judul atau isi jurnal terlebih dahulu.");return}let a=read("ruang_journal");a.unshift({id:Date.now(),title:title||"Tanpa judul",body,date:new Date().toISOString()});write("ruang_journal",a);$("jTitle").value="";$("jBody").value="";render();alert("Jurnal tersimpan di perangkat ini.")}
+function addSchedule(){let title=$("sTitle").value.trim(),date=$("sDate").value,time=$("sTime").value;if(!title||!date||!time){alert("Lengkapi nama, tanggal, dan waktu kegiatan.");return}let a=read("ruang_schedule");a.push({id:Date.now(),title,date,time});a.sort((x,y)=>(x.date+x.time).localeCompare(y.date+y.time));write("ruang_schedule",a);$("sTitle").value="";$("sTime").value="";render()}
+function removeItem(key,id){write(key,read(key).filter(x=>x.id!==id));render()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function journalHTML(items,limit){let arr=limit?items.slice(0,limit):items;if(!arr.length)return '<div class="empty">Belum ada catatan. Kamu bisa mulai kapan saja.</div>';return arr.map(x=>`<div class="entry"><div class="entryrow"><div class="entrytitle">${esc(x.title)}</div><button class="del" onclick="removeItem('ruang_journal',${x.id})">Hapus</button></div><div class="entrymeta">${new Date(x.date).toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"})}</div><div class="entrybody">${esc(x.body)}</div></div>`).join("")}
+function scheduleHTML(items,limit){let arr=limit?items.slice(0,limit):items;if(!arr.length)return '<div class="empty">Belum ada jadwal yang dibuat.</div>';return arr.map(x=>`<div class="schedule"><div class="time">${esc(x.time)}<div class="hint">${new Date(x.date+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short"})}</div></div><div style="flex:1"><div class="entrytitle">${esc(x.title)}</div></div><button class="del" onclick="removeItem('ruang_schedule',${x.id})">Hapus</button></div>`).join("")}
+function render(){let j=read("ruang_journal"),s=read("ruang_schedule");$("journalList").innerHTML=journalHTML(j);$("journalCount").textContent=j.length+" catatan";$("scheduleList").innerHTML=scheduleHTML(s);let today=dateNow.toISOString().slice(0,10);$("homeSchedule").innerHTML=scheduleHTML(s.filter(x=>x.date===today));$("homeJournal").innerHTML=journalHTML(j,2)}
+render();
+</script>
+</body>
+</html>
