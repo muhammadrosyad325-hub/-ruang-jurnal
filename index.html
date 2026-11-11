@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f5f6fb">
+<meta name="description" content="Ruang — tempat untuk merapikan hari dan menyimpan pikiran.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
 <title>Ruang — Jurnal & Jadwal</title>
 <style>
 :root{--bg:#f5f6fb;--card:#fff;--ink:#202235;--muted:#85899c;--accent:#6257d9;--soft:#eeecff;--line:#ececf2}
@@ -97,6 +100,7 @@ function journalHTML(items,limit){let arr=limit?items.slice(0,limit):items;if(!a
 function scheduleHTML(items,limit){let arr=limit?items.slice(0,limit):items;if(!arr.length)return '<div class="empty">Belum ada jadwal yang dibuat.</div>';return arr.map(x=>`<div class="schedule"><div class="time">${esc(x.time)}<div class="hint">${new Date(x.date+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"short"})}</div></div><div style="flex:1"><div class="entrytitle">${esc(x.title)}</div></div><button class="del" onclick="removeItem('ruang_schedule',${x.id})">Hapus</button></div>`).join("")}
 function render(){let j=read("ruang_journal"),s=read("ruang_schedule");$("journalList").innerHTML=journalHTML(j);$("journalCount").textContent=j.length+" catatan";$("scheduleList").innerHTML=scheduleHTML(s);let today=dateNow.toISOString().slice(0,10);$("homeSchedule").innerHTML=scheduleHTML(s.filter(x=>x.date===today));$("homeJournal").innerHTML=journalHTML(j,2)}
 render();
+if ("serviceWorker" in navigator) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(err => console.log("Service worker gagal:", err))); }
 </script>
 </body>
 </html>
